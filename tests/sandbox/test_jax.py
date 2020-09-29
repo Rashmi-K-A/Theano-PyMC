@@ -169,7 +169,6 @@ def test_jax_basic():
         out_fg, [(np.eye(10) + np.random.randn(10, 10)*.01).astype(tt.config.floatX)]
     )
 
-
     out = tt.slinalg.Cholesky(lower=False)(x)
     out_fg = theano.gof.FunctionGraph([x], [out])
     (jax_res,) = compare_jax_and_py(
