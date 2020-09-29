@@ -1,3 +1,4 @@
+from sys import base_prefix
 import pytest
 
 import numpy as np
@@ -127,6 +128,7 @@ def test_jax_compile_ops():
 def test_jax_basic():
     x = tt.matrix("x")
     y = tt.matrix("y")
+    b = tt.vector("b")
 
     # `ScalarOp`
     z = tt.cosh(x ** 2 + y / 3.0)
@@ -159,6 +161,32 @@ def test_jax_basic():
     out_fg = theano.gof.FunctionGraph([x], [out])
     (jax_res,) = compare_jax_and_py(
         out_fg, [np.arange(10 * 10).reshape((10, 10)).astype(tt.config.floatX)]
+    )
+
+    out = tt.slinalg.cholesky(x)
+    out_fg = theano.gof.FunctionGraph([x], [out])
+    (jax_res,) = compare_jax_and_py(
+        out_fg, [(np.eye(10) + np.random.randn(10, 10)*.01).astype(tt.config.floatX)]
+    )
+
+    # not sure why this isn't working yet with lower=False
+    # out = tt.slinalg.cholesky(x, lower=False)
+    # out_fg = theano.gof.FunctionGraph([x], [out])
+    # (jax_res,) = compare_jax_and_py(
+    #     out_fg, [(np.eye(10) + np.random.randn(10, 10)*.01).astype(tt.config.floatX)]
+    # )
+
+    out = tt.slinalg.solve(x, b)
+    out_fg = theano.gof.FunctionGraph([x, b], [out])
+    (jax_res,) = compare_jax_and_py(
+        out_fg, [np.eye(10).astype(tt.config.floatX),
+                 np.arange(10).astype(tt.config.floatX)]
+    )
+
+    out = tt.nlinalg.alloc_diag(b)
+    out_fg = theano.gof.FunctionGraph([b], [out])
+    (jax_res,) = compare_jax_and_py(
+        out_fg, [np.arange(10).astype(tt.config.floatX)]
     )
 
 

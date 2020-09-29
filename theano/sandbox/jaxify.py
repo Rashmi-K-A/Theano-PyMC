@@ -52,14 +52,13 @@ from theano.tensor.nnet.sigm import ScalarSoftplus
 
 from theano.tensor.nlinalg import (
     ExtractDiag,
+    AllocDiag,
 )
 
 from theano.tensor.slinalg import (
     Cholesky,
     Solve,
 )
-
-from theano.tensor import AllocDiag
 
 jax.config.update("jax_enable_x64", True)
 # XXX: Enabling this will break some shape-based functionality, and severely
