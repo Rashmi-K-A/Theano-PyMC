@@ -1,4 +1,3 @@
-from sys import base_prefix
 import pytest
 
 import numpy as np
