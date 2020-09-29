@@ -24,6 +24,7 @@ def compare_jax_and_py(fgraph, inputs, cmp_fn=np.allclose):
     jax_res = theano_jax_fn(*inputs)
 
     if isinstance(jax_res, list):
+        # For some reason this returns [[array0, array1], None]
         assert all(isinstance(res, jax.interpreters.xla.DeviceArray) for res in jax_res)
     else:
         assert isinstance(jax_res, jax.interpreters.xla.DeviceArray)
@@ -188,6 +189,47 @@ def test_jax_basic():
         out_fg, [np.arange(10).astype(tt.config.floatX)]
     )
 
+    out = tt.nlinalg.det(x)
+    out_fg = theano.gof.FunctionGraph([x], [out])
+    (jax_res,) = compare_jax_and_py(
+        out_fg, [np.arange(10 * 10).reshape((10, 10)).astype(tt.config.floatX)]
+    )
+
+#    out = tt.nlinalg.eig(x)
+#    out_fg = theano.gof.FunctionGraph([x], [out])
+#    (jax_res,) = compare_jax_and_py(
+#        out_fg, [np.arange(10 * 10).reshape((10, 10)).astype(tt.config.floatX)]
+#    )
+
+#    out = tt.nlinalg.eigh(x)
+#    out_fg = theano.gof.FunctionGraph([x], [out])
+#    (jax_res,) = compare_jax_and_py(
+#        out_fg, [np.arange(10 * 10).reshape((10, 10)).astype(tt.config.floatX)]
+#    )
+
+    out = tt.nlinalg.matrix_inverse(x)
+    out_fg = theano.gof.FunctionGraph([x], [out])
+    (jax_res,) = compare_jax_and_py(
+        out_fg, [(np.eye(10) + np.random.randn(10, 10)*.01).astype(tt.config.floatX)]
+    )
+
+    out1, out2 = tt.nlinalg.qr(x, mode="full")
+    out_fg = theano.gof.FunctionGraph([x], [out1, out2])
+    (jax_res,) = compare_jax_and_py(
+        out_fg, [np.arange(10 * 10).reshape((10, 10)).astype(tt.config.floatX)]
+    )
+
+    out = tt.nlinalg.qr(x, mode="reduced")
+    out_fg = theano.gof.FunctionGraph([x], [out])
+    (jax_res,) = compare_jax_and_py(
+        out_fg, [np.arange(10 * 10).reshape((10, 10)).astype(tt.config.floatX)]
+    )
+
+    out = tt.nlinalg.svd(x)
+    out_fg = theano.gof.FunctionGraph([x], [out])
+    (jax_res,) = compare_jax_and_py(
+        out_fg, [np.arange(10 * 10).reshape((10, 10)).astype(tt.config.floatX)]
+    )
 
 @pytest.mark.skip(reason="Not fully implemented, yet.")
 def test_jax_scan():

@@ -1,3 +1,4 @@
+from jax.lax_linalg import eigh
 import theano
 
 import jax
@@ -51,6 +52,13 @@ from theano.tensor.opt import MakeVector
 from theano.tensor.nnet.sigm import ScalarSoftplus
 
 from theano.tensor.nlinalg import (
+    Det,
+    Eig,
+    Eigh,
+    MatrixInverse,
+    QRFull,
+    QRIncomplete,
+    SVD,
     ExtractDiag,
     AllocDiag,
 )
@@ -687,3 +695,55 @@ def jax_funcify_Solve(op):
         return jsp.linalg.solve(a, b, lower=lower)
 
     return solve
+
+@jax_funcify.register(Det)
+def jax_funcify_Det(op):
+    def det(x):
+        return jnp.linalg.det(x)
+
+    return det
+
+@jax_funcify.register(Eig)
+def jax_funcify_Eig(op):
+    def eigh(x):
+        return jnp.linalg.eig(x)
+
+    return eig
+
+@jax_funcify.register(Eigh)
+def jax_funcify_Eigh(op):
+    UPLO = op.UPLO
+
+    def eigh(x):
+        return jnp.linalg.eigh(x, UPLO=UPLO)
+
+    return eigh
+
+@jax_funcify.register(MatrixInverse)
+def jax_funcify_MatrixInverse(op):
+    def matrix_inverse(x):
+        return jnp.linalg.inv(x)
+
+    return matrix_inverse
+
+@jax_funcify.register(QRFull)
+def jax_funcify_QRFull(op):
+    def qr_full(x):
+        import pdb; pdb.set_trace()
+        return jnp.linalg.qr(x, mode="full")
+
+    return qr_full
+
+@jax_funcify.register(QRIncomplete)
+def jax_funcify_QRIncomplete(op):
+    def qr_incomplete(x):
+        return jnp.linalg.qr(x, mode="reduced")
+
+    return qr_incomplete
+
+@jax_funcify.register(SVD)
+def jax_funcify_SVD(op):
+    def svd(x):
+        return jnp.linalg.svd(x)
+
+    return svd
