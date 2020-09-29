@@ -170,11 +170,11 @@ def test_jax_basic():
     )
 
     # not sure why this isn't working yet with lower=False
-    # out = tt.slinalg.cholesky(x, lower=False)
-    # out_fg = theano.gof.FunctionGraph([x], [out])
-    # (jax_res,) = compare_jax_and_py(
-    #     out_fg, [(np.eye(10) + np.random.randn(10, 10)*.01).astype(tt.config.floatX)]
-    # )
+    out = tt.slinalg.Cholesky(lower=False)(x)
+    out_fg = theano.gof.FunctionGraph([x], [out])
+    (jax_res,) = compare_jax_and_py(
+        out_fg, [(np.eye(10) + np.random.randn(10, 10)*.01).astype(tt.config.floatX)]
+    )
 
     out = tt.slinalg.solve(x, b)
     out_fg = theano.gof.FunctionGraph([x, b], [out])
